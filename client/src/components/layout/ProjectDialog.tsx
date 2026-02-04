@@ -43,7 +43,11 @@ export function ProjectDialog({ open, onOpenChange, onSuccess }: ProjectDialogPr
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Create New Project</DialogTitle>
+                    <DialogTitle className="flex items-center gap-2 text-xl">
+                        <span className="bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-bold">
+                            Create New Project
+                        </span>
+                    </DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>

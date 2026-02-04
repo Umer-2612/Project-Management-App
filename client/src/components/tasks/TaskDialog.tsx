@@ -170,158 +170,192 @@ export function TaskDialog({ open, onOpenChange, task, projectId, sprintId, onSu
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle>{task ? 'Edit Task' : 'Create Task'}</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label className="text-sm font-medium">Title *</label>
-                            <Input
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                placeholder="Task title"
-                                className="mt-1"
-                            />
+                <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden p-0 gap-0 border-white/10 bg-card/80 backdrop-blur-3xl flex flex-col">
+                    <div className="h-full flex flex-col overflow-hidden">
+                        <DialogHeader className="px-6 py-4 border-b border-white/5 flex-shrink-0 bg-white/5">
+                            <DialogTitle className="flex items-center gap-2 text-xl">
+                                <span className="bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-bold">
+                                    {task ? 'Edit Mission' : 'New Mission'}
+                                </span>
+                            </DialogTitle>
+                        </DialogHeader>
+
+                        <div className="flex-1 overflow-y-auto custom-scrollbar">
+                            <form id="task-form" onSubmit={handleSubmit} className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {/* Left Column: Main Content */}
+                                <div className="lg:col-span-2 space-y-6">
+                                    <div className="space-y-4">
+                                        <div className="glass-panel p-4 rounded-xl border-white/5 bg-white/5 space-y-3">
+                                            <Input
+                                                value={title}
+                                                onChange={(e) => setTitle(e.target.value)}
+                                                placeholder="Mission Title"
+                                                className="text-lg font-semibold bg-transparent border-none placeholder:text-muted-foreground/50 px-0 h-auto focus-visible:ring-0"
+                                            />
+                                            <div className="h-px bg-white/10 w-full" />
+                                            <Textarea
+                                                value={description}
+                                                onChange={(e) => setDescription(e.target.value)}
+                                                placeholder="What needs to be done?"
+                                                className="min-h-[100px] resize-none bg-transparent border-none focus-visible:ring-0 px-0 text-muted-foreground"
+                                            />
+                                        </div>
+
+                                        <div className="glass-panel p-4 rounded-xl border-white/5 bg-white/5 space-y-2">
+                                            <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                                Acceptance Criteria
+                                            </label>
+                                            <Textarea
+                                                value={acceptanceCriteria}
+                                                onChange={(e) => setAcceptanceCriteria(e.target.value)}
+                                                placeholder="- [ ] Requirements..."
+                                                className="min-h-[120px] font-mono text-sm bg-black/20 border-white/5 focus-visible:ring-1 focus-visible:ring-green-500/30"
+                                            />
+                                        </div>
+
+                                        <div className="glass-panel p-4 rounded-xl border-white/5 bg-white/5">
+                                            <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3 block">
+                                                Tags
+                                            </label>
+                                            <div className="flex flex-wrap gap-2 mb-3">
+                                                {tags.map((tag) => (
+                                                    <Badge key={tag} variant="outline" className="gap-1 bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 transition-colors pl-2.5 pr-1 py-1">
+                                                        {tag}
+                                                        <div className="hover:bg-primary/30 rounded-full p-0.5" onClick={() => removeTag(tag)}>
+                                                            <X className="h-3 w-3 cursor-pointer" />
+                                                        </div>
+                                                    </Badge>
+                                                ))}
+                                                {tags.length === 0 && <span className="text-sm text-muted-foreground italic">No tags added</span>}
+                                            </div>
+                                            <div className="relative">
+                                                <Input
+                                                    value={newTag}
+                                                    onChange={(e) => setNewTag(e.target.value)}
+                                                    placeholder="Type and press Enter to add tag..."
+                                                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                                                    className="pl-9 bg-black/20 border-white/5"
+                                                />
+                                                <Plus className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right Column: Meta & People */}
+                                <div className="space-y-6">
+                                    <div className="glass-panel p-4 rounded-xl border-white/5 bg-white/5 space-y-4">
+                                        <div>
+                                            <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2 block">
+                                                Status
+                                            </label>
+                                            <Select value={status} onValueChange={(v) => setStatus(v as TaskStatus)}>
+                                                <SelectTrigger className="w-full bg-black/20 border-white/5">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="todo">To Do</SelectItem>
+                                                    <SelectItem value="in-progress">In Progress</SelectItem>
+                                                    <SelectItem value="review">Review</SelectItem>
+                                                    <SelectItem value="done">Done</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 block">
+                                                    Est. Hours
+                                                </label>
+                                                <Input
+                                                    type="number"
+                                                    value={estimatedTime}
+                                                    onChange={(e) => setEstimatedTime(e.target.value)}
+                                                    className="bg-black/20 border-white/5 text-center"
+                                                    placeholder="0"
+                                                    min="0"
+                                                    step="0.5"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 block">
+                                                    Act. Hours
+                                                </label>
+                                                <Input
+                                                    type="number"
+                                                    value={actualTime}
+                                                    onChange={(e) => setActualTime(e.target.value)}
+                                                    className="bg-black/20 border-white/5 text-center"
+                                                    placeholder="0"
+                                                    min="0"
+                                                    step="0.5"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="glass-panel p-4 rounded-xl border-white/5 bg-white/5 space-y-4">
+                                        <div>
+                                            <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2 flex justify-between items-center">
+                                                Assignees
+                                                <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full">{assignees.length}</span>
+                                            </label>
+                                            <div className="flex flex-wrap gap-1.5 max-h-[120px] overflow-y-auto custom-scrollbar p-1">
+                                                {users.map((user) => (
+                                                    <Badge
+                                                        key={user._id}
+                                                        variant={assignees.includes(user._id) ? 'default' : 'secondary'}
+                                                        className={`cursor-pointer transition-all ${assignees.includes(user._id) ? 'hover:bg-primary/90' : 'hover:bg-white/20'}`}
+                                                        onClick={() => toggleUser(user._id, assignees, setAssignees)}
+                                                    >
+                                                        {user.name.split(' ')[0]}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="h-px bg-white/5" />
+
+                                        <div>
+                                            <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2 flex justify-between items-center">
+                                                Reviewers
+                                                <span className="text-[10px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded-full">{reviewers.length}</span>
+                                            </label>
+                                            <div className="flex flex-wrap gap-1.5 max-h-[120px] overflow-y-auto custom-scrollbar p-1">
+                                                {users.map((user) => (
+                                                    <Badge
+                                                        key={user._id}
+                                                        variant={reviewers.includes(user._id) ? 'default' : 'secondary'} // You might want a purple variant for reviewers later
+                                                        className={`cursor-pointer transition-all ${reviewers.includes(user._id) ? 'bg-purple-600 hover:bg-purple-700' : 'hover:bg-white/20'}`}
+                                                        onClick={() => toggleUser(user._id, reviewers, setReviewers)}
+                                                    >
+                                                        {user.name.split(' ')[0]}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
 
-                        <div>
-                            <label className="text-sm font-medium">Description</label>
-                            <Textarea
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Describe the task..."
-                                className="mt-1"
-                                rows={3}
-                            />
-                        </div>
-
-                        <div>
-                            <label className="text-sm font-medium">Acceptance Criteria</label>
-                            <Textarea
-                                value={acceptanceCriteria}
-                                onChange={(e) => setAcceptanceCriteria(e.target.value)}
-                                placeholder="- [ ] Criterion 1&#10;- [ ] Criterion 2"
-                                className="mt-1 font-mono text-sm"
-                                rows={4}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-4">
-                            <div>
-                                <label className="text-sm font-medium">Status</label>
-                                <Select value={status} onValueChange={(v) => setStatus(v as TaskStatus)}>
-                                    <SelectTrigger className="mt-1">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="todo">To Do</SelectItem>
-                                        <SelectItem value="in-progress">In Progress</SelectItem>
-                                        <SelectItem value="review">Review</SelectItem>
-                                        <SelectItem value="done">Done</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div>
-                                <label className="text-sm font-medium">Estimated (hours)</label>
-                                <Input
-                                    type="number"
-                                    value={estimatedTime}
-                                    onChange={(e) => setEstimatedTime(e.target.value)}
-                                    placeholder="0"
-                                    className="mt-1"
-                                    min="0"
-                                    step="0.5"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-sm font-medium">Actual (hours)</label>
-                                <Input
-                                    type="number"
-                                    value={actualTime}
-                                    onChange={(e) => setActualTime(e.target.value)}
-                                    placeholder="0"
-                                    className="mt-1"
-                                    min="0"
-                                    step="0.5"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="text-sm font-medium">Assignees</label>
-                            <div className="mt-1 flex flex-wrap gap-2">
-                                {users.map((user) => (
-                                    <Badge
-                                        key={user._id}
-                                        variant={assignees.includes(user._id) ? 'default' : 'outline'}
-                                        className="cursor-pointer"
-                                        onClick={() => toggleUser(user._id, assignees, setAssignees)}
-                                    >
-                                        {user.name}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="text-sm font-medium">Reviewers</label>
-                            <div className="mt-1 flex flex-wrap gap-2">
-                                {users.map((user) => (
-                                    <Badge
-                                        key={user._id}
-                                        variant={reviewers.includes(user._id) ? 'default' : 'outline'}
-                                        className="cursor-pointer"
-                                        onClick={() => toggleUser(user._id, reviewers, setReviewers)}
-                                    >
-                                        {user.name}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="text-sm font-medium">Tags</label>
-                            <div className="mt-1 flex flex-wrap gap-2 mb-2">
-                                {tags.map((tag) => (
-                                    <Badge key={tag} variant="secondary" className="gap-1">
-                                        {tag}
-                                        <X
-                                            className="h-3 w-3 cursor-pointer"
-                                            onClick={() => removeTag(tag)}
-                                        />
-                                    </Badge>
-                                ))}
-                            </div>
-                            <div className="flex gap-2">
-                                <Input
-                                    value={newTag}
-                                    onChange={(e) => setNewTag(e.target.value)}
-                                    placeholder="Add a tag"
-                                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                                />
-                                <Button type="button" variant="outline" onClick={addTag}>
-                                    <Plus className="h-4 w-4" />
+                        <DialogFooter className="px-6 py-4 border-t border-white/5 bg-black/20 flex-shrink-0 flex items-center justify-between">
+                            {task ? (
+                                <Button type="button" variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => setDeleteDialogOpen(true)} disabled={isLoading}>
+                                    Delete Mission
+                                </Button>
+                            ) : <div />}
+                            <div className="flex gap-3">
+                                <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="border-white/10 hover:bg-white/5">
+                                    Cancel
+                                </Button>
+                                <Button type="submit" form="task-form" disabled={isLoading || !title.trim()} className="px-8 font-semibold">
+                                    {isLoading ? 'Saving...' : task ? 'Update Mission' : 'Create Mission'}
                                 </Button>
                             </div>
-                        </div>
-
-                        <DialogFooter className="gap-2">
-                            {task && (
-                                <Button type="button" variant="destructive" onClick={() => setDeleteDialogOpen(true)} disabled={isLoading}>
-                                    Delete
-                                </Button>
-                            )}
-                            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={isLoading || !title.trim()}>
-                                {isLoading ? 'Saving...' : task ? 'Update Task' : 'Create Task'}
-                            </Button>
                         </DialogFooter>
-                    </form>
+                    </div>
                 </DialogContent>
             </Dialog>
 
