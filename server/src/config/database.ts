@@ -1,11 +1,18 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
-dotenv.config();
+import path from 'path';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/leanagile';
+// Load .env from project root (parent of server directory)
+dotenv.config({ path: path.join(process.cwd(), '../.env') });
+
+const MONGODB_URI = process.env.MONGODB_URI;
 
 export const connectDB = async (): Promise<void> => {
+    if (!MONGODB_URI) {
+        console.error('❌ MONGODB_URI is not defined. Please check your .env file in the project root.');
+        process.exit(1);
+    }
     try {
         await mongoose.connect(MONGODB_URI);
         console.log('✅ MongoDB connected successfully');

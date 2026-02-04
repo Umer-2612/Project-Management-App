@@ -2,9 +2,12 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { User } from '../models/User.js';
 
-dotenv.config();
+import path from 'path';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/leanagile';
+// Load .env from project root (parent of server directory)
+dotenv.config({ path: path.join(process.cwd(), '../.env') });
+
+const MONGODB_URI = process.env.MONGODB_URI;
 
 // First admin user - change these credentials
 const ADMIN_USER = {
@@ -15,6 +18,10 @@ const ADMIN_USER = {
 
 async function seedAdmin() {
     try {
+        if (!MONGODB_URI) {
+            console.error('❌ MONGODB_URI is not defined. Please check your .env file in the project root.');
+            process.exit(1);
+        }
         await mongoose.connect(MONGODB_URI);
         console.log('✅ Connected to MongoDB');
 
